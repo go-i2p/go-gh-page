@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -24,8 +25,26 @@ func main() {
 	mainTemplateOverride := flag.String("main-template", "", "Path to custom main template")
 	docTemplateOverride := flag.String("doc-template", "", "Path to custom documentation template")
 	styleTemplateOverride := flag.String("style-template", "", "Path to custom style template")
+	setupYaml := flag.Bool("page-yaml", false, "Generate .github/workflows/page.yaml file")
 
 	flag.Parse()
+
+	if *setupYaml {
+		if err := os.MkdirAll(".github/workflows", 0o755); err != nil {
+			log.Fatalf("Failed to create .github/workflows directory: %v", err)
+		}
+		// Generate the page.yaml file
+		if err := os.WriteFile(".github/workflows/page.yml", []byte(templates.CITemplate), 0o644); err != nil {
+			log.Fatalf("Failed to generate page.yml: %v", err)
+		}
+		fmt.Printf("Generated .github/workflows/page.yaml in %s\n", *outputFlag)
+		if err := exec.Command("git", "add", ".github/workflows/page.yml").Run(); err != nil {
+			log.Fatalf("Failed to add page.yml to git: %v", err)
+		}
+		fmt.Println("Added .github/workflows/page.yml to git staging area.")
+		fmt.Println("You can now commit and push this file to your repository.")
+		os.Exit(0)
+	}
 
 	// Validate repository flag
 	if *repoFlag == "" {

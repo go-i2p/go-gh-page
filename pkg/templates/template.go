@@ -10,3 +10,6 @@ var DocTemplate string
 
 //go:embed style.css
 var StyleTemplate string
+
+//go:embed page.yml
+var CITemplate string
