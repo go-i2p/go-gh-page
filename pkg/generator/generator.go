@@ -74,7 +74,7 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 
 	// Create docs directory
 	docsDir := filepath.Join(g.outputDir, "docs")
-	if err := os.MkdirAll(docsDir, 0755); err != nil {
+	if err := os.MkdirAll(docsDir, 0o755); err != nil {
 		return nil, fmt.Errorf("failed to create docs directory: %w", err)
 	}
 
@@ -85,7 +85,7 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 
 	// Create image directory if needed
 	imagesDir := filepath.Join(g.outputDir, "images")
-	if err := os.MkdirAll(imagesDir, 0755); err != nil {
+	if err := os.MkdirAll(imagesDir, 0o755); err != nil {
 		return nil, fmt.Errorf("failed to create images directory: %w", err)
 	}
 
@@ -226,7 +226,7 @@ func (g *Generator) generateMainPage(docsPages []utils.DocPage) error {
 
 	// Write to file
 	outputPath := filepath.Join(g.outputDir, "index.html")
-	if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(outputPath, buf.Bytes(), 0o644); err != nil {
 		return fmt.Errorf("failed to write index.html: %w", err)
 	}
 
@@ -288,12 +288,12 @@ func (g *Generator) generateDocPage(path, content string, docsPages []utils.DocP
 
 	// Ensure output directory exists
 	outPath := filepath.Join(g.outputDir, outputPath)
-	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return fmt.Errorf("failed to create directory for %s: %w", outPath, err)
 	}
 
 	// Write to file
-	if err := os.WriteFile(outPath, buf.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(outPath, buf.Bytes(), 0o644); err != nil {
 		return fmt.Errorf("failed to write %s: %w", outPath, err)
 	}
 
@@ -387,7 +387,7 @@ func copyFile(src, dst string) error {
 func GenerateRootStyle(outputDir string) error {
 	// write the templates.StyleTemplate to the root of the output directory
 	stylePath := filepath.Join(outputDir, "style.css")
-	if err := os.WriteFile(stylePath, []byte(templates.StyleTemplate), 0644); err != nil {
+	if err := os.WriteFile(stylePath, []byte(templates.StyleTemplate), 0o644); err != nil {
 		return fmt.Errorf("failed to write style.css: %w", err)
 	}
 	return nil

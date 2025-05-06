@@ -93,7 +93,7 @@ func main() {
 	repoURL := fmt.Sprintf("https://%s/%s/%s.git", *githost, owner, repo)
 
 	// Create output directory if it doesn't exist
-	if err := os.MkdirAll(*outputFlag, 0755); err != nil {
+	if err := os.MkdirAll(*outputFlag, 0o755); err != nil {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 
@@ -109,7 +109,7 @@ func main() {
 		defer os.RemoveAll(tempDir) // Clean up when done
 	} else {
 		// Ensure the specified work directory exists
-		if err := os.MkdirAll(workDir, 0755); err != nil {
+		if err := os.MkdirAll(workDir, 0o755); err != nil {
 			log.Fatalf("Failed to create working directory: %v", err)
 		}
 	}
