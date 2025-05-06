@@ -106,7 +106,18 @@ func ProcessRelativeLinks(content, filePath, owner, repo string) string {
 				resolvedPath = resolvedPath[1:]
 			}
 
-			htmlPath := "../" + GetOutputPath(resolvedPath, "docs")
+			outputPath := GetOutputPath(resolvedPath, baseDir)
+
+			// Calculate the correct relative path based on the source and target file locations
+			htmlPath := outputPath
+			if baseDir != "." {
+				// If source file is in a subdirectory, calculate relative path
+				relPath, err := filepath.Rel(baseDir, filepath.Dir(resolvedPath))
+				if err == nil && relPath != "." {
+					// Need to adjust the link based on directory depth
+					htmlPath = filepath.Join("../", relPath, filepath.Base(htmlPath))
+				}
+			}
 			return "[" + linkText + "](" + htmlPath + anchor + ")"
 		}
 

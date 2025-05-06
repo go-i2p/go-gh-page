@@ -105,6 +105,8 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 
 	// Prepare the list of documentation pages for navigation
 	var docsPages []utils.DocPage
+	var docsByDirectory = make(map[string][]utils.DocPage)
+
 	for path := range g.repoData.MarkdownFiles {
 		// Skip README as it's on the main page
 		if isReadmeFile(filepath.Base(path)) {
@@ -117,13 +119,23 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 		}
 
 		outputPath := utils.GetOutputPath(path, "docs")
-		docsPages = append(docsPages, utils.DocPage{
+		docPage := utils.DocPage{
 			Title: title,
 			Path:  outputPath,
-		})
+		}
+
+		// Add to main list
+		docsPages = append(docsPages, docPage)
+
+		// Add to directory-specific list for structured navigation
+		dirPath := filepath.Dir(path)
+		if dirPath == "." {
+			dirPath = "root"
+		}
+		docsByDirectory[dirPath] = append(docsByDirectory[dirPath], docPage)
 	}
 
-	// Sort docsPages by title for consistent navigation
+	// Sort docsPages by path for consistent navigation
 	utils.SortDocPagesByTitle(docsPages)
 
 	// Generate main index page
@@ -132,6 +144,9 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 	}
 
 	// Generate documentation pages
+	processedCount := 0
+	var processedFiles []string
+
 	for path, content := range g.repoData.MarkdownFiles {
 		// Skip README as it's on the main page
 		if isReadmeFile(filepath.Base(path)) {
@@ -142,8 +157,16 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 			return nil, fmt.Errorf("failed to generate doc page for %s: %w", path, err)
 		}
 
-		result.DocsCount++
+		processedFiles = append(processedFiles, path)
+		processedCount++
 	}
+
+	fmt.Printf("Processed %d markdown files:\n", processedCount)
+	for _, file := range processedFiles {
+		fmt.Printf("  - %s\n", file)
+	}
+
+	result.DocsCount = processedCount
 
 	// Generate site structure summary
 	var buffer bytes.Buffer
@@ -254,6 +277,11 @@ func (g *Generator) generateDocPage(path, content string, docsPages []utils.DocP
 	currentDocsPages := make([]utils.DocPage, len(docsPages))
 	copy(currentDocsPages, docsPages)
 	outputPath := utils.GetOutputPath(path, "docs")
+	// Ensure output directory exists
+	outPath := filepath.Join(g.outputDir, outputPath)
+	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
+		return fmt.Errorf("failed to create directory for %s: %w", outPath, err)
+	}
 
 	for i := range currentDocsPages {
 		if currentDocsPages[i].Path == outputPath {
@@ -287,7 +315,7 @@ func (g *Generator) generateDocPage(path, content string, docsPages []utils.DocP
 	}
 
 	// Ensure output directory exists
-	outPath := filepath.Join(g.outputDir, outputPath)
+	outPath = filepath.Join(g.outputDir, outputPath)
 	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return fmt.Errorf("failed to create directory for %s: %w", outPath, err)
 	}
