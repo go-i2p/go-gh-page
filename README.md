@@ -1,6 +1,6 @@
 # go-gh-page
 
-A tool that automatically generates GitHub Pages static websites from repository content. It converts your repository's Markdown files to HTML with a consistent layout, handles navigation, and preserves your documentation structure.
+A tool that automatically generates GitHub Pages static websites from repository content. It converts your repository's Markdown files to HTML with a consistent layout, handles navigation, and preserves your documentation structure. It can be used as a github workflow for any repo.
 
 ## Features
 
