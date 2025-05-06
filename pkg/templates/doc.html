@@ -243,7 +243,7 @@
       {{if .DocsPages}}
         <div class="nav-section-title">Documentation:</div>
         {{range .DocsPages}}
-          <li><a href="{{.Path}}" {{if .IsActive}}class="active"{{end}}>{{.Title}}</a></li>
+          <li><a href="../{{.Path}}" {{if .IsActive}}class="active"{{end}}>{{.Title}}</a></li>
         {{end}}
       {{end}}
     </ul>

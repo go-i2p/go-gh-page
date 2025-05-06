@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -13,6 +14,8 @@ import (
 	"github.com/go-i2p/go-gh-page/pkg/generator"
 	"github.com/go-i2p/go-gh-page/pkg/git"
 	"github.com/go-i2p/go-gh-page/pkg/templates"
+	github "github.com/google/go-github/v45/github"
+	"golang.org/x/oauth2"
 )
 
 func main() {
@@ -26,6 +29,7 @@ func main() {
 	docTemplateOverride := flag.String("doc-template", "", "Path to custom documentation template")
 	styleTemplateOverride := flag.String("style-template", "", "Path to custom style template")
 	setupYaml := flag.Bool("page-yaml", false, "Generate .github/workflows/page.yaml file")
+	setupPage := flag.Bool("setup-page", false, "Setup GitHub Pages to build from gh-pages branch")
 
 	flag.Parse()
 
@@ -40,6 +44,12 @@ func main() {
 		fmt.Printf("Generated .github/workflows/page.yaml in %s\n", *outputFlag)
 		if err := exec.Command("git", "add", ".github/workflows/page.yml").Run(); err != nil {
 			log.Fatalf("Failed to add page.yml to git: %v", err)
+		}
+		if err := exec.Command("git", "commit", "-m", "Add GitHub Actions workflow for page generation").Run(); err != nil {
+			log.Fatalf("Failed to commit page.yml: %v", err)
+		}
+		if err := exec.Command("git", "push").Run(); err != nil {
+			log.Fatalf("Failed to push page.yml: %v", err)
 		}
 		fmt.Println("Added .github/workflows/page.yml to git staging area.")
 		fmt.Println("You can now commit and push this file to your repository.")
@@ -58,6 +68,13 @@ func main() {
 		fmt.Println("Error: -repo flag must be in format 'owner/repo-name'")
 		flag.Usage()
 		os.Exit(1)
+	}
+	if *setupPage {
+		if err := enableGithubPage(repoParts[0], repoParts[1]); err != nil {
+			log.Fatalf("Failed to enable GitHub Pages: %v", err)
+		}
+		fmt.Printf("Enabled GitHub Pages for %s/%s\n", strings.Split(*repoFlag, "/")[0], strings.Split(*repoFlag, "/")[1])
+		os.Exit(0)
 	}
 	// if mainTemplateOverride is not empty, check if a file exists
 	if *mainTemplateOverride != "" {
@@ -176,4 +193,31 @@ func main() {
 	fmt.Printf("or deploy the entire directory to any static web host.\n")
 
 	fmt.Printf("\nTotal time: %.2f seconds\n", time.Since(startTime).Seconds())
+}
+
+func enableGithubPage(userName, repoName string) error {
+	branch := "gh-pages"
+	token := os.Getenv("GITHUB_TOKEN")
+	if len(token) == 0 {
+		return fmt.Errorf("GITHUB_TOKEN not set")
+	}
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+	path := "/"
+	_, _, err := client.Repositories.EnablePages(ctx, userName, repoName, &github.Pages{
+		Source: &github.PagesSource{
+			Branch: github.String(branch),
+			Path:   github.String(path),
+		},
+		Public: github.Bool(true),
+	})
+	if err != nil {
+		return fmt.Errorf("could not enable github pages: %v", err)
+	}
+
+	return nil
 }
