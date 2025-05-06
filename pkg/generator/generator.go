@@ -105,7 +105,7 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 
 	// Prepare the list of documentation pages for navigation
 	var docsPages []utils.DocPage
-	var docsByDirectory = make(map[string][]utils.DocPage)
+	docsByDirectory := make(map[string][]utils.DocPage)
 
 	for path := range g.repoData.MarkdownFiles {
 		// Skip README as it's on the main page
@@ -279,7 +279,7 @@ func (g *Generator) generateDocPage(path, content string, docsPages []utils.DocP
 	outputPath := utils.GetOutputPath(path, "docs")
 	// Ensure output directory exists
 	outPath := filepath.Join(g.outputDir, outputPath)
-	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return fmt.Errorf("failed to create directory for %s: %w", outPath, err)
 	}
 
