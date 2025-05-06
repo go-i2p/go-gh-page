@@ -30,7 +30,9 @@ jobs:
 
       - name: Build Site Generator
         run: |
-          go build -o github-site-gen ./cmd/github-site-gen/main.go
+          go install github.com/go-i2p/go-gh-page/cmd/github-site-gen@latest
+          cp -v "$GOPATH/bin/github-site-gen" ./github-site-gen
+          # Ensure the binary is executable
           chmod +x github-site-gen
 
       - name: Generate Site
@@ -47,9 +49,6 @@ jobs:
           
           # Add a .gitattributes file to ensure consistent line endings
           echo "* text=auto" > ./site/.gitattributes
-          
-          # Copy the style.css to the root of the site
-          cp ./pkg/templates/style.css ./site/style.css
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
