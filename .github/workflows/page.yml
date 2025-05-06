@@ -32,7 +32,7 @@ jobs:
         run: |
           go install github.com/go-i2p/go-gh-page/cmd/github-site-gen@latest
           export GOBIN=$(go env GOPATH)/bin
-          cp -v "$GOBIN/bin/github-site-gen" ./github-site-gen
+          cp -v "$GOBIN/github-site-gen" ./github-site-gen
           # Ensure the binary is executable
           chmod +x github-site-gen
 
