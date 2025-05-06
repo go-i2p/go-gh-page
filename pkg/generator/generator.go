@@ -78,6 +78,11 @@ func (g *Generator) GenerateSite() (*GenerationResult, error) {
 		return nil, fmt.Errorf("failed to create docs directory: %w", err)
 	}
 
+	// Write style.css to the output directory
+	if err := GenerateRootStyle(g.outputDir); err != nil {
+		return nil, fmt.Errorf("failed to write style.css: %w", err)
+	}
+
 	// Create image directory if needed
 	imagesDir := filepath.Join(g.outputDir, "images")
 	if err := os.MkdirAll(imagesDir, 0755); err != nil {
@@ -377,4 +382,13 @@ func copyFile(src, dst string) error {
 	// Copy the contents
 	_, err = io.Copy(destFile, sourceFile)
 	return err
+}
+
+func GenerateRootStyle(outputDir string) error {
+	// write the templates.StyleTemplate to the root of the output directory
+	stylePath := filepath.Join(outputDir, "style.css")
+	if err := os.WriteFile(stylePath, []byte(templates.StyleTemplate), 0644); err != nil {
+		return fmt.Errorf("failed to write style.css: %w", err)
+	}
+	return nil
 }
