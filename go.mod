@@ -1,6 +1,6 @@
 module github.com/go-i2p/go-gh-page
 
-go 1.26.0
+go 1.26.3
 
 require (
 	github.com/go-git/go-git/v5 v5.19.2
@@ -26,6 +26,7 @@ require (
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/skeema/knownhosts v1.3.3 // indirect
+	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/net v0.59.0 // indirect
